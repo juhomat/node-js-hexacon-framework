@@ -121,7 +121,7 @@ export function ChatInterface({ configuration, onStatsUpdate, loadChatId, onChat
         const totalCost = response.data.chat.metadata.totalCost
         const messageCount = response.data.chat.metadata.messageCount
         const averageResponseTime = loadedMessages.length > 0 
-          ? loadedMessages.reduce((sum, msg) => sum + (msg.processingTime || 0), 0) / loadedMessages.length
+          ? loadedMessages.reduce((sum: number, msg: Message) => sum + (msg.processingTime || 0), 0) / loadedMessages.length
           : 0
         
         onStatsUpdate({

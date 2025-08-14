@@ -43,11 +43,11 @@ const testFeatures: TestFeature[] = [
   },
   {
     id: 'database',
-    title: 'Database Operations',
-    description: 'Test PostgreSQL CRUD operations, schema management, and queries',
+    title: 'Database Management',
+    description: 'Browse database tables, view data, and manage database schema',
     icon: <Database className="h-6 w-6" />,
-    href: '/tests/database',
-    status: 'pending',
+    href: '/database',
+    status: 'implemented',
     category: 'database'
   },
   {
@@ -226,11 +226,11 @@ export default function AdminHomePage() {
               <div className="text-sm text-gray-500">Total Features</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">1</div>
+              <div className="text-2xl font-bold text-green-600">3</div>
               <div className="text-sm text-gray-500">Implemented</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-600">3</div>
+              <div className="text-2xl font-bold text-yellow-600">2</div>
               <div className="text-sm text-gray-500">In Development</div>
             </div>
             <div className="text-center">
