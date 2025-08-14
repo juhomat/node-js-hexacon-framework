@@ -211,6 +211,10 @@ export class ChatApplication {
     };
   }
 
+  async getChatsByUser(request: { userId: string; pagination: { page: number; limit: number } }): Promise<Chat[]> {
+    return await this.chatRepository.getChatsByUser(request.userId, request.pagination);
+  }
+
   async getChatHistory(request: GetChatHistoryRequest): Promise<GetChatHistoryResponse> {
     // 1. Validate chat access
     const chat = await this.validateChatAccess(request.chatId, request.userId);

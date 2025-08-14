@@ -34,9 +34,11 @@ interface ChatStats {
 interface ChatInterfaceProps {
   configuration: ChatConfiguration
   onStatsUpdate: (stats: ChatStats) => void
+  loadChatId?: string
+  onChatIdChange?: (chatId: string | null) => void
 }
 
-export function ChatInterface({ configuration, onStatsUpdate }: ChatInterfaceProps) {
+export function ChatInterface({ configuration, onStatsUpdate, loadChatId, onChatIdChange }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -47,10 +49,14 @@ export function ChatInterface({ configuration, onStatsUpdate }: ChatInterfacePro
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
-  // Create a chat when component mounts
+  // Handle chat loading
   useEffect(() => {
-    createNewChat()
-  }, [])
+    if (loadChatId) {
+      loadExistingChat(loadChatId)
+    } else {
+      createNewChat()
+    }
+  }, [loadChatId])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -70,13 +76,64 @@ export function ChatInterface({ configuration, onStatsUpdate }: ChatInterfacePro
       })
 
       if (response.success) {
-        setCurrentChatId(response.data.chat.id)
+        const newChatId = response.data.chat.id
+        setCurrentChatId(newChatId)
         setMessages([]) // Clear existing messages
         setError(null)
+        onChatIdChange?.(newChatId)
       }
     } catch (error) {
       console.error('Failed to create chat:', error)
       setError('Failed to create chat session')
+    }
+  }
+
+  const loadExistingChat = async (chatId: string) => {
+    try {
+      setError(null)
+      
+      const response = await ChatAPI.getChatHistory({
+        chatId,
+        userId: 'demo_user_123',
+        page: 1,
+        limit: 50
+      })
+
+      if (response.success) {
+        setCurrentChatId(chatId)
+        
+        // Convert chat history to message format
+        const loadedMessages = response.data.messages.data.map((msg: any) => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+          timestamp: new Date(msg.timestamp),
+          tokens: msg.tokens,
+          cost: msg.cost,
+          processingTime: msg.processingTime
+        }))
+        
+        setMessages(loadedMessages)
+        onChatIdChange?.(chatId)
+        
+        // Update stats based on chat metadata
+        const totalTokens = response.data.chat.metadata.totalTokens
+        const totalCost = response.data.chat.metadata.totalCost
+        const messageCount = response.data.chat.metadata.messageCount
+        const averageResponseTime = loadedMessages.length > 0 
+          ? loadedMessages.reduce((sum, msg) => sum + (msg.processingTime || 0), 0) / loadedMessages.length
+          : 0
+        
+        onStatsUpdate({
+          totalTokens,
+          totalCost,
+          messageCount,
+          averageResponseTime
+        })
+      }
+    } catch (error) {
+      console.error('Failed to load chat:', error)
+      setError('Failed to load chat history')
     }
   }
 

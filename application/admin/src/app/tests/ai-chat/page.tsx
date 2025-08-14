@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowLeft, MessageSquare } from 'lucide-react'
 import { ChatInterface } from '@/components/chat/ChatInterface'
 import { TokenUsageDisplay } from '@/components/chat/TokenUsageDisplay'
+import { PreviousChats } from '@/components/chat/PreviousChats'
 
 interface ChatConfiguration {
   model: string
@@ -34,6 +35,9 @@ export default function AIChatTestPage() {
     averageResponseTime: 0
   })
 
+  const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
+  const userId = 'demo_user_123' // Demo user ID
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
@@ -61,25 +65,42 @@ export default function AIChatTestPage() {
       </div>
 
       {/* Main Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Chat Interface - Main Column */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-3">
           <div className="bg-white rounded-lg shadow">
             <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-medium text-gray-900">
-                Chat Interface
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-medium text-gray-900">
+                  Chat Interface
+                </h2>
+                <button
+                  onClick={() => setSelectedChatId(null)}
+                  className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  New Chat
+                </button>
+              </div>
             </div>
             
             <ChatInterface 
               configuration={configuration}
               onStatsUpdate={setChatStats}
+              loadChatId={selectedChatId || undefined}
+              onChatIdChange={setSelectedChatId}
             />
           </div>
         </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
+          {/* Previous Chats */}
+          <PreviousChats 
+            userId={userId}
+            onChatSelect={setSelectedChatId}
+            selectedChatId={selectedChatId || undefined}
+          />
+          
           {/* Token Usage Display */}
           <TokenUsageDisplay stats={chatStats} />
         </div>
