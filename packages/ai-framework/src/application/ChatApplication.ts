@@ -189,7 +189,7 @@ export class ChatApplication {
     const defaultConfiguration: ChatConfiguration = {
       model: request.model || 'gpt-5',
       temperature: 0.7,
-      maxTokens: 2000,
+      maxTokens: 4000, // Higher for GPT-5 reasoning tokens
       topP: 1,
       frequencyPenalty: 0,
       presencePenalty: 0,
@@ -265,7 +265,7 @@ export class ChatApplication {
     const defaultConfig: ChatConfiguration = {
       model,
       temperature: isGPT5 ? 1 : 0.7, // GPT-5 only supports temperature=1
-      maxTokens: 2000,
+      maxTokens: isGPT5 ? 4000 : 2000, // GPT-5 needs more tokens for reasoning + output
       topP: isGPT5 ? 1 : 1,
       frequencyPenalty: isGPT5 ? 0 : 0,
       presencePenalty: isGPT5 ? 0 : 0,

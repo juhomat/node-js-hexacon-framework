@@ -73,12 +73,8 @@ npm install
 cd packages/ai-framework
 npm install
 
-# Install application dependencies
-cd ../../application
-npm install
-
 # Install admin interface dependencies
-cd admin
+cd ../../admin_application
 npm install
 ```
 

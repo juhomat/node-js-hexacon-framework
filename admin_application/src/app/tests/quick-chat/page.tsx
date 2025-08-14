@@ -41,8 +41,7 @@ export default function QuickChatTest() {
           systemPrompt: 'You are a helpful AI assistant for testing the stateless chat feature.',
           configuration: {
             model: 'gpt-5',
-            temperature: 0.7,
-            maxTokens: 500,
+            maxTokens: 4000
           }
         }),
       })
@@ -81,8 +80,7 @@ export default function QuickChatTest() {
           systemPrompt: 'You are a helpful AI assistant for testing the stateless streaming chat feature.',
           configuration: {
             model: 'gpt-5',
-            temperature: 0.7,
-            maxTokens: 500,
+            maxTokens: 4000
           }
         }),
       })

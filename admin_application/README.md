@@ -2,16 +2,21 @@
 
 A Next.js-based administration interface for testing and configuring the AI Framework features.
 
+**Location**: `/admin_application` (moved from `/application/admin`)
+
 ## 🚀 Quick Start
 
 ```bash
+# Navigate to admin application
+cd admin_application
+
 # Install dependencies
 npm install
 
 # Start development server
 npm run dev
 
-# Visit http://localhost:3001 to access the admin interface
+# Visit http://localhost:3000 to access the admin interface
 ```
 
 ## 📋 Available Features

@@ -146,10 +146,10 @@ export class StatelessChatApplication {
     const defaults: ChatConfiguration = {
       model,
       temperature: isGPT5 ? 1 : 0.7, // GPT-5 only supports temperature=1
-      maxTokens: 1000,
-      topP: isGPT5 ? 1 : 1, // GPT-5 might have topP restrictions too
-      frequencyPenalty: isGPT5 ? 0 : 0, // GPT-5 might not support frequency penalty
-      presencePenalty: isGPT5 ? 0 : 0, // GPT-5 might not support presence penalty
+      maxTokens: isGPT5 ? 4000 : 1000, // GPT-5 needs more tokens for reasoning + output
+      topP: isGPT5 ? 1 : 1,
+      frequencyPenalty: isGPT5 ? 0 : 0,
+      presencePenalty: isGPT5 ? 0 : 0,
       stream: false,
     };
 

@@ -123,19 +123,29 @@ export class OpenAIAdapter implements AIService, StatelessAIService {
       
       // Use the responses API for non-streaming
       const tokenLimitParam = this.getTokenLimitParam(model, request.configuration.maxTokens);
-      const response = await this.openai.chat.completions.create({
+      
+      // GPT-5 specific configuration
+      const isGPT5 = model.startsWith('gpt-5');
+      const apiParams: any = {
         model,
         messages,
-        temperature: request.configuration.temperature,
         ...tokenLimitParam,
-        top_p: request.configuration.topP,
-        frequency_penalty: request.configuration.frequencyPenalty,
-        presence_penalty: request.configuration.presencePenalty,
-        response_format: request.configuration.responseFormat 
-          ? { type: request.configuration.responseFormat }
-          : undefined,
         stream: false,
-      });
+      };
+      
+      // Only add optional parameters for non-GPT-5 models
+      if (!isGPT5) {
+        apiParams.temperature = request.configuration.temperature;
+        apiParams.top_p = request.configuration.topP;
+        apiParams.frequency_penalty = request.configuration.frequencyPenalty;
+        apiParams.presence_penalty = request.configuration.presencePenalty;
+      }
+      
+      if (request.configuration.responseFormat) {
+        apiParams.response_format = { type: request.configuration.responseFormat };
+      }
+      
+      const response = await this.openai.chat.completions.create(apiParams);
 
       const choice = response.choices[0];
       if (!choice || !choice.message) {
@@ -181,20 +191,30 @@ export class OpenAIAdapter implements AIService, StatelessAIService {
       
       // Use the responses streaming API
       const tokenLimitParam = this.getTokenLimitParam(model, request.configuration.maxTokens);
-      const stream = await this.openai.chat.completions.create({
+      
+      // GPT-5 specific configuration - exclude problematic parameters
+      const isGPT5 = model.startsWith('gpt-5');
+      const baseParams: any = {
         model,
         messages,
-        temperature: request.configuration.temperature,
         ...tokenLimitParam,
-        top_p: request.configuration.topP,
-        frequency_penalty: request.configuration.frequencyPenalty,
-        presence_penalty: request.configuration.presencePenalty,
-        response_format: request.configuration.responseFormat 
-          ? { type: request.configuration.responseFormat }
-          : undefined,
         stream: true,
         stream_options: { include_usage: true }, // Get usage stats at the end
-      });
+      };
+      
+      // Only add optional parameters for non-GPT-5 models
+      if (!isGPT5) {
+        baseParams.temperature = request.configuration.temperature;
+        baseParams.top_p = request.configuration.topP;
+        baseParams.frequency_penalty = request.configuration.frequencyPenalty;
+        baseParams.presence_penalty = request.configuration.presencePenalty;
+      }
+      
+      if (request.configuration.responseFormat) {
+        baseParams.response_format = { type: request.configuration.responseFormat };
+      }
+      
+      const stream = await this.openai.chat.completions.create(baseParams);
 
       let fullContent = '';
       let responseId: string | undefined;
@@ -369,19 +389,35 @@ export class OpenAIAdapter implements AIService, StatelessAIService {
       const messages = this.buildStatelessMessages(request.messages);
       
       const tokenLimitParam = this.getTokenLimitParam(model, request.configuration.maxTokens);
-      const response = await this.openai.chat.completions.create({
+      
+      // GPT-5 specific configuration
+      const isGPT5 = model.startsWith('gpt-5');
+      const apiParams: any = {
         model,
         messages,
-        temperature: request.configuration.temperature,
         ...tokenLimitParam,
-        top_p: request.configuration.topP,
-        frequency_penalty: request.configuration.frequencyPenalty,
-        presence_penalty: request.configuration.presencePenalty,
-        response_format: request.configuration.responseFormat 
-          ? { type: request.configuration.responseFormat }
-          : undefined,
         stream: false,
-      });
+      };
+      
+      // Only add optional parameters for non-GPT-5 models
+      if (!isGPT5) {
+        apiParams.temperature = request.configuration.temperature;
+        apiParams.top_p = request.configuration.topP;
+        apiParams.frequency_penalty = request.configuration.frequencyPenalty;
+        apiParams.presence_penalty = request.configuration.presencePenalty;
+      }
+      
+      if (request.configuration.responseFormat) {
+        apiParams.response_format = { type: request.configuration.responseFormat };
+      }
+      
+      const response = await this.openai.chat.completions.create(apiParams);
+
+      console.log('Raw OpenAI response:', JSON.stringify(response, null, 2));
+      console.log('Choices:', response.choices);
+      console.log('First choice:', response.choices[0]);
+      console.log('Message:', response.choices[0]?.message);
+      console.log('Message content:', response.choices[0]?.message?.content);
 
       const choice = response.choices[0];
       if (!choice || !choice.message) {
@@ -424,20 +460,30 @@ export class OpenAIAdapter implements AIService, StatelessAIService {
       const messages = this.buildStatelessMessages(request.messages);
       
       const tokenLimitParam = this.getTokenLimitParam(model, request.configuration.maxTokens);
-      const stream = await this.openai.chat.completions.create({
+      
+      // GPT-5 specific configuration - exclude problematic parameters
+      const isGPT5 = model.startsWith('gpt-5');
+      const baseParams: any = {
         model,
         messages,
-        temperature: request.configuration.temperature,
         ...tokenLimitParam,
-        top_p: request.configuration.topP,
-        frequency_penalty: request.configuration.frequencyPenalty,
-        presence_penalty: request.configuration.presencePenalty,
-        response_format: request.configuration.responseFormat 
-          ? { type: request.configuration.responseFormat }
-          : undefined,
         stream: true,
         stream_options: { include_usage: true },
-      });
+      };
+      
+      // Only add optional parameters for non-GPT-5 models
+      if (!isGPT5) {
+        baseParams.temperature = request.configuration.temperature;
+        baseParams.top_p = request.configuration.topP;
+        baseParams.frequency_penalty = request.configuration.frequencyPenalty;
+        baseParams.presence_penalty = request.configuration.presencePenalty;
+      }
+      
+      if (request.configuration.responseFormat) {
+        baseParams.response_format = { type: request.configuration.responseFormat };
+      }
+      
+      const stream = await this.openai.chat.completions.create(baseParams);
 
       let responseId: string | undefined;
 
