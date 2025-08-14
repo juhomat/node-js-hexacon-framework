@@ -10,17 +10,23 @@
 
 Develop a modular, reusable Node.js framework using hexagonal architecture (ports and adapters) to enable rapid development of multiple AI-powered web applications.
 
+## 🚀 Quick Demo
+
+**Try it now**: Clone the repo, install dependencies, set your OpenAI API key, and run the admin interface to test AI chat and database management features immediately!
+
 ## 🧠 Key Features
 
-- ✅ **AI Chat** - OpenAI-powered chat assistant (GPT models)
-- ✅ **AI Image Generation** - Prompt-to-image using DALL·E
-- ✅ **AI RAG Chat** - Retrieval-Augmented Generation pipeline
-- ✅ **Web Scraping + Embedding** - Fetch, chunk, and embed content for RAG
-- ✅ **User Authentication** - Firebase Auth (email & Google login)
-- ✅ **Stripe Payments** - One-time and recurring billing
-- ✅ **History Storage** - PostgreSQL + pgvector for logs and embeddings
-- ✅ **Admin Interface** - Built-in web UI for configuration and testing
-- ✅ **Modular Adapter System** - Easily extendable or replaceable services
+- ✅ **AI Chat (Persistent)** - OpenAI-powered chat with database storage and streaming
+- ✅ **AI Chat (Stateless)** - Direct OpenAI responses without persistence
+- ✅ **Database Management** - Browse tables, view data, delete tables/rows
+- ✅ **Admin Interface** - Comprehensive web UI for testing and management
+- 🚧 **AI Image Generation** - Prompt-to-image using DALL·E (planned)
+- 🚧 **AI RAG Chat** - Retrieval-Augmented Generation pipeline (planned)
+- 🚧 **Web Scraping + Embedding** - Content extraction and vector embeddings (planned)
+- 🚧 **User Authentication** - Firebase Auth integration (planned)
+- 🚧 **Stripe Payments** - Payment processing (planned)
+- ✅ **PostgreSQL Integration** - Full database support with pgvector
+- ✅ **Modular Adapter System** - Hexagonal architecture with swappable adapters
 
 ## 🏗️ Architecture
 
@@ -36,12 +42,17 @@ node-js-hexacon-framework/
 │   │   ├── presentation/           # API controllers
 │   │   └── shared/                 # Common utilities
 │   └── docs/                       # Framework documentation
-└── application/                    # Final runnable application
+├── admin_application/              # Admin web interface (Next.js)
+│   ├── src/app/                   # Next.js 14 app directory
+│   │   ├── api/                   # API routes for admin features
+│   │   ├── database/              # Database management interface
+│   │   └── tests/                 # Feature testing interfaces
+│   └── src/components/            # Reusable UI components
+└── application/                    # Backend application layer
     ├── server/                     # Main Express server
     ├── api/                        # API routes
     ├── middleware/                 # Express middleware
-    ├── routes/                     # Route definitions
-    └── admin/                      # Admin web interface (Next.js)
+    └── routes/                     # Route definitions
 ```
 
 ### Core Principles
@@ -56,8 +67,9 @@ node-js-hexacon-framework/
 ### Prerequisites
 
 - Node.js >= 18.0.0
-- PostgreSQL with pgvector extension
-- API keys for: OpenAI, Firebase, Stripe
+- PostgreSQL database with pgvector extension (for vector embeddings)
+- OpenAI API key (required for AI features)
+- Optional: Firebase and Stripe API keys (for future authentication and payment features)
 
 ### Installation
 
@@ -78,6 +90,19 @@ cd ../../admin_application
 npm install
 ```
 
+### Database Setup
+
+```bash
+# Create PostgreSQL database
+createdb ai_framework_db
+
+# Install pgvector extension (if needed)
+psql ai_framework_db -c "CREATE EXTENSION IF NOT EXISTS vector;"
+
+# Run the schema setup
+psql ai_framework_db -f packages/ai-framework/src/infrastructure/database/schema.sql
+```
+
 ### Development
 
 ```bash
@@ -85,13 +110,15 @@ npm install
 cd packages/ai-framework
 npm run build
 
-# Start the application server
-cd ../../application
+# Start the admin interface
+cd ../../admin_application
 npm run dev
+# Access at http://localhost:3003
 
-# Start the admin interface (separate terminal)
-cd application/admin
+# Optional: Start the backend application server
+cd ../application
 npm run dev
+# Access at http://localhost:3000
 ```
 
 ## 🛠 Tech Stack
@@ -111,71 +138,89 @@ npm run dev
 
 ## 📊 Admin Interface
 
-Every project includes a comprehensive admin interface at `/admin`:
+The admin interface runs at `http://localhost:3003` and provides comprehensive management tools:
 
-### 🔧 Configuration Management
-- Environment variable editor
-- Service adapter configuration
-- Database connection testing
-- API key management
+### ✅ **Currently Available Features**
 
-### 🧪 Component Testing
-- Interactive AI chat playground
+#### 🤖 **AI Chat Testing**
+- **Persistent Chat** (`/tests/ai-chat`) - Full chat sessions with database storage
+- **Quick Chat** (`/tests/quick-chat`) - Stateless AI responses for API testing
+- Real-time streaming support
+- Model selection (GPT-4o, GPT-4o-mini, GPT-3.5-turbo)
+- Configuration panel with temperature, tokens, and other parameters
+- Token usage and cost tracking
+- Response time monitoring
+
+#### 🗄️ **Database Management** (`/database`)
+- **Table Browser** - View all database tables and schemas
+- **Data Viewer** - Browse table contents with pagination
+- **Delete Operations** - Remove tables and individual rows with confirmation
+- **Schema Information** - Column types, primary keys, constraints
+- **Search & Filter** - Find tables by name or schema
+- **Smart Data Formatting** - Type-aware display of dates, numbers, booleans
+
+#### 📊 **Dashboard Overview**
+- Feature status tracking
+- Quick statistics
+- Navigation to all tools
+- Real-time system status
+
+### 🚧 **Planned Features**
+- Configuration management for environment variables
+- Usage monitoring and analytics
+- RAG pipeline testing interface
 - Image generation testing
-- RAG pipeline debugging
-- Vector search testing
+- User authentication management
+- API documentation interface
 
-### 📈 Monitoring & Analytics
-- Usage statistics and cost tracking
-- Performance metrics
-- Error monitoring
-- Service health status
+## 🔄 Implementation Status
 
-### 🛠 Development Tools
-- Interactive API documentation
-- Data import/export utilities
-- Database schema visualization
-- Component playground
+### ✅ **Completed**
+- **Core Framework**: Hexagonal architecture foundation with TypeScript
+- **Domain Layer**: Chat entities, repositories, and use cases
+- **Infrastructure**: OpenAI adapter, PostgreSQL repositories
+- **Application Services**: Chat and stateless chat applications
+- **Admin Interface**: Next.js-based management interface
+- **AI Chat Features**: Both persistent and stateless chat implementations
+- **Database Management**: Full CRUD operations with admin UI
+- **API Integration**: RESTful endpoints for all features
 
-## 🔄 Implementation Phases
+### 🚧 **In Progress**
+- Advanced admin configuration tools
+- Enhanced monitoring and analytics
+- RAG pipeline implementation
 
-- [x] **Phase 1**: Core Framework Foundation
-- [ ] **Phase 2**: Domain Layer & Entities
-- [ ] **Phase 3**: Infrastructure Adapters
-- [ ] **Phase 4**: Application Services
-- [ ] **Phase 5**: Basic Application Layer
-- [ ] **Phase 6**: Admin Interface Foundation
-- [ ] **Phase 7**: Admin Configuration Management
-- [ ] **Phase 8**: Admin Testing Interfaces
-- [ ] **Phase 9**: Monitoring & Analytics
-- [ ] **Phase 10**: Advanced Admin Tools
-- [ ] **Phase 11**: Integration & Testing
-- [ ] **Phase 12**: Documentation & Examples
+### 📋 **Planned**
+- Image generation with DALL·E
+- Web scraping and embedding pipeline
+- User authentication with Firebase
+- Payment processing with Stripe
+- Advanced admin tools and dashboards
 
 ## 🔧 Configuration
 
-Create a `.env` file in your application root:
+Create a `.env.local` file in the `admin_application` directory:
 
 ```env
-# OpenAI
+# Required: OpenAI API Key
 OPENAI_API_KEY=your_openai_api_key
 
-# Firebase
+# Required: Database Connection
+DATABASE_URL=postgresql://username:password@localhost:5432/ai_framework_db
+
+# Optional: Future features
 FIREBASE_PROJECT_ID=your_firebase_project_id
 FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 FIREBASE_CLIENT_EMAIL=your_firebase_client_email
 
-# Stripe
 STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
 STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
 
-# Database
-DATABASE_URL=postgresql://username:password@localhost:5432/dbname
-
-# Server
-PORT=3000
+# Server Configuration
 NODE_ENV=development
 ```
+
+**Note**: The admin interface currently uses OpenAI and PostgreSQL. Other services will be integrated in future releases.
 
 ## 📚 Documentation
 

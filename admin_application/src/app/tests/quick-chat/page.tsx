@@ -111,14 +111,20 @@ export default function QuickChatTest() {
               const data = JSON.parse(line.slice(6))
               
               if (data.type === 'chunk' && data.delta) {
-                setStreamingContent(prev => prev + data.delta)
+                setStreamingContent(prev => {
+                  const newContent = prev + data.delta
+                  return newContent
+                })
               } else if (data.type === 'complete') {
-                setResponse({
-                  content: streamingContent,
-                  model: 'gpt-5',
-                  usage: data.usage || { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
-                  cost: data.cost || 0,
-                  processingTimeMs: 0
+                setStreamingContent(currentContent => {
+                  setResponse({
+                    content: currentContent,
+                    model: 'gpt-5',
+                    usage: data.usage || { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+                    cost: data.cost || 0,
+                    processingTimeMs: 0
+                  })
+                  return currentContent
                 })
               } else if (data.type === 'error') {
                 throw new Error(data.error || 'Streaming error')

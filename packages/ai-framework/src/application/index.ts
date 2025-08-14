@@ -4,3 +4,4 @@
 
 export * from './ChatApplication';
 export * from './StatelessChatApplication';
+export * from './DatabaseAdminApplication';

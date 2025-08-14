@@ -9,8 +9,10 @@ import {
   OpenAIAdapter, 
   PostgreSQLChatRepository, 
   PostgreSQLMessageRepository,
+  PostgreSQLDatabaseAdminRepository,
   ChatApplication,
-  StatelessChatApplication
+  StatelessChatApplication,
+  DatabaseAdminApplication
 } from 'ai-framework'
 
 // Database pool singleton
@@ -19,6 +21,7 @@ let dbPool: Pool | null = null
 // Framework instances
 let chatApplication: ChatApplication | null = null
 let statelessChatApplication: StatelessChatApplication | null = null
+let databaseAdminApplication: DatabaseAdminApplication | null = null
 
 /**
  * Initialize the database pool
@@ -83,6 +86,24 @@ export function getStatelessChatApplication(): StatelessChatApplication {
 }
 
 /**
+ * Initialize the DatabaseAdminApplication
+ */
+export function getDatabaseAdminApplication(): DatabaseAdminApplication {
+  if (!databaseAdminApplication) {
+    // Initialize database
+    const pool = initializeDatabase()
+    
+    // Initialize repository
+    const databaseAdminRepository = new PostgreSQLDatabaseAdminRepository(pool)
+    
+    // Create application service
+    databaseAdminApplication = new DatabaseAdminApplication(databaseAdminRepository)
+  }
+  
+  return databaseAdminApplication
+}
+
+/**
  * Close database connections
  */
 export async function closeDatabaseConnections(): Promise<void> {
@@ -91,5 +112,6 @@ export async function closeDatabaseConnections(): Promise<void> {
     dbPool = null
     chatApplication = null
     statelessChatApplication = null
+    databaseAdminApplication = null
   }
 }

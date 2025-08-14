@@ -4,15 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { Pool } from 'pg'
-
-// Create database pool
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://localhost:5432/ai_framework_db',
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-})
+import { getDatabaseAdminApplication } from '@/lib/framework'
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -26,43 +18,24 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    // Validate table exists first
-    const checkQuery = `
-      SELECT table_name, table_type
-      FROM information_schema.tables 
-      WHERE table_name = $1 AND table_schema = $2
-    `
-    
-    const checkResult = await pool.query(checkQuery, [tableName, schemaName])
-    
-    if (checkResult.rows.length === 0) {
-      return NextResponse.json(
-        { error: 'Table not found' },
-        { status: 404 }
-      )
-    }
+    // Get database admin application from framework
+    const databaseAdminApp = getDatabaseAdminApplication()
 
-    const actualTableType = checkResult.rows[0].table_type
-
-    // Determine the correct DROP statement based on table type
-    let dropStatement: string
-    if (actualTableType === 'VIEW') {
-      dropStatement = `DROP VIEW IF EXISTS "${schemaName}"."${tableName}" CASCADE`
-    } else {
-      dropStatement = `DROP TABLE IF EXISTS "${schemaName}"."${tableName}" CASCADE`
-    }
-
-    // Execute the drop statement
-    await pool.query(dropStatement)
+    // Use the framework to delete the table
+    const response = await databaseAdminApp.deleteTable({
+      tableName,
+      schemaName,
+      tableType
+    })
 
     return NextResponse.json({
       success: true,
-      message: `${actualTableType.toLowerCase()} "${schemaName}"."${tableName}" has been deleted successfully`,
+      message: response.result.message,
       data: {
         deletedTable: {
-          name: tableName,
-          schema: schemaName,
-          type: actualTableType
+          name: response.result.deletedTable.name,
+          schema: response.result.deletedTable.schema,
+          type: response.result.deletedTable.type
         }
       }
     })
@@ -70,24 +43,34 @@ export async function DELETE(request: NextRequest) {
   } catch (error: any) {
     console.error('Delete table error:', error)
     
-    // Handle specific PostgreSQL errors
-    if (error.code === '2BP01') {
+    // Handle specific error types
+    if (error.message.includes('dependencies')) {
       return NextResponse.json(
         { 
           error: 'Cannot delete table due to dependencies',
-          details: 'This table is referenced by other objects. Use CASCADE option or remove dependencies first.'
+          details: error.message
         },
         { status: 409 }
       )
     }
     
-    if (error.code === '42501') {
+    if (error.message.includes('Permission denied')) {
       return NextResponse.json(
         { 
           error: 'Permission denied',
-          details: 'Insufficient privileges to delete this table.'
+          details: error.message
         },
         { status: 403 }
+      )
+    }
+
+    if (error.message.includes('not found')) {
+      return NextResponse.json(
+        { 
+          error: 'Table not found',
+          details: error.message
+        },
+        { status: 404 }
       )
     }
     

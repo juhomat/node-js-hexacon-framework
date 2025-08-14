@@ -16,42 +16,57 @@ npm install
 # Start development server
 npm run dev
 
-# Visit http://localhost:3000 to access the admin interface
+# Visit http://localhost:3003 to access the admin interface
 ```
 
 ## 📋 Available Features
 
 ### ✅ **AI Chat Testing** (`/tests/ai-chat`)
-- Interactive chat interface with real AI responses
-- Model selection (GPT-4o, GPT-4o-mini, GPT-4-turbo, GPT-3.5-turbo)
+- **Persistent Chat** - Full chat sessions with database storage
+- **Chat History** - Browse and reload previous conversations
+- Model selection (GPT-4o, GPT-4o-mini, GPT-3.5-turbo)
 - Configuration panel with temperature, max tokens, and other parameters
-- Streaming and non-streaming modes
+- Real-time streaming and non-streaming modes
 - Token usage and cost tracking
 - Response time monitoring
-- Quick test scenarios
+
+### ✅ **Quick Chat Testing** (`/tests/quick-chat`)
+- **Stateless Chat** - Direct AI responses without database persistence
+- Perfect for testing API integrations
+- Both streaming and non-streaming modes
+- Immediate responses with usage statistics
+
+### ✅ **Database Management** (`/database`)
+- **Table Browser** - View all database tables and schemas
+- **Data Viewer** - Browse table contents with pagination
+- **Delete Operations** - Remove tables and individual rows safely
+- **Schema Information** - Column types, primary keys, constraints
+- **Search & Filter** - Find tables by name or schema
+- **Smart Formatting** - Type-aware display of different data types
 
 ### 🔜 **Coming Soon**
-- Database Operations Testing
 - Web Scraping & Embedding Testing  
 - RAG Chat System Testing
-- Environment Configuration
-- Usage Monitoring & Analytics
+- Environment Configuration Management
+- Usage Monitoring & Analytics Dashboard
 
 ## 🎯 Current Status
 
-The admin interface is **functional for AI Chat testing** with:
+The admin interface is **fully functional** with:
 
-- **Frontend**: Complete Next.js interface with Tailwind CSS
-- **Mock Backend**: Simulated AI responses for testing UI
-- **Real Integration**: Ready to connect to actual AI Framework backend
+- ✅ **Complete AI Integration**: Real OpenAI API integration with GPT models
+- ✅ **Database Operations**: Full PostgreSQL integration with CRUD operations
+- ✅ **Production Ready**: Complete Next.js interface with TypeScript
+- ✅ **Real-time Features**: Streaming chat, live data updates, pagination
+- ✅ **Professional UI**: Modern Tailwind CSS design with responsive layout
 
-## 🔧 Integration with AI Framework
+## 🔧 Setup Requirements
 
-To connect with the real AI Framework backend:
+To run the admin interface:
 
-1. **Add API Routes**: Create `/src/app/api/` endpoints that use the AI Framework
-2. **Replace Mock Functions**: Update chat components to call real APIs
-3. **Add Environment Setup**: Configure OpenAI API keys and database connections
+1. **OpenAI API Key**: Set `OPENAI_API_KEY` in `.env.local`
+2. **Database**: Set `DATABASE_URL` for PostgreSQL connection
+3. **Framework Build**: Run `npm run build` in `packages/ai-framework/`
 
 ## 📁 Project Structure
 
