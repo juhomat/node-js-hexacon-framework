@@ -2,4 +2,5 @@
  * Domain Entities
  */
 
-// Domain entities will be exported here
+export * from './Chat';
+export * from './Message';

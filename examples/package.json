@@ -1,0 +1,21 @@
+{
+  "name": "ai-framework-examples",
+  "version": "1.0.0",
+  "description": "Simple examples to test the AI Framework",
+  "main": "index.js",
+  "scripts": {
+    "test-stateless": "npx tsx test-stateless-chat.ts",
+    "test-persistent": "npx tsx test-persistent-chat.ts",
+    "test-both": "npx tsx test-both-modes.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "tsx": "^4.0.0",
+    "pg": "^8.11.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/pg": "^8.11.0",
+    "typescript": "^5.0.0"
+  }
+}

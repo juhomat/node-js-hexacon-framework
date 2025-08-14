@@ -2,4 +2,5 @@
  * Repository Interfaces (Ports)
  */
 
-// Repository interfaces will be exported here
+export * from './ChatRepository';
+export * from './MessageRepository';

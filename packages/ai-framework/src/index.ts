@@ -4,11 +4,10 @@
  * Modular AI Web App Framework with Hexagonal Architecture
  */
 
-// Domain layer will be exported here when implemented
-// export * from './domain';
-// export * from './application';
-// export * from './infrastructure';
+export * from './domain';
+export * from './application';
+export * from './infrastructure';
 // export * from './presentation';
-// export * from './shared';
+export * from './shared';
 
 console.log('AI Framework initialized successfully!');

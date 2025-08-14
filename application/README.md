@@ -43,6 +43,42 @@ The `/admin` directory contains a web-based admin interface that is included wit
 - Data import/export utilities
 - Component playground for testing integrations
 
+## Setup
+
+### Environment Configuration
+
+1. **Create Environment File**: Copy the example environment file to the project root:
+   ```bash
+   # From the project root directory (/Users/juhomattila/node-js-hexacon-framework/)
+   cp application/env.example .env
+   ```
+
+2. **Configure API Keys**: Edit the `.env` file and add your actual API keys:
+   - **OpenAI**: Get your API key from [platform.openai.com](https://platform.openai.com/)
+   - **Firebase**: Download service account JSON from [console.firebase.google.com](https://console.firebase.google.com/)
+   - **Stripe**: Get keys from [dashboard.stripe.com](https://dashboard.stripe.com/)
+   - **Database**: Configure your PostgreSQL connection details
+
+3. **Required Services Setup**:
+   - **PostgreSQL with pgvector**: See [environment setup guide](../packages/ai-framework/docs/environment-setup.md)
+   - **Firebase Project**: Create project and enable Authentication
+   - **Stripe Account**: Set up for payment processing
+
+### Database Setup
+
+```bash
+# Install PostgreSQL (macOS)
+brew install postgresql
+brew services start postgresql
+
+# Create database
+createdb ai_framework_db
+
+# Connect and enable pgvector
+psql ai_framework_db
+CREATE EXTENSION vector;
+```
+
 ## Usage
 
 ### Running the Application

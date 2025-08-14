@@ -27,8 +27,8 @@ Built on **Hexagonal Architecture** principles:
 ### Prerequisites
 
 - Node.js >= 18.0.0
-- PostgreSQL with pgvector extension
-- API keys for: OpenAI, Firebase, Stripe
+- PostgreSQL database
+- OpenAI API key
 
 ### Installation
 
@@ -41,9 +41,64 @@ npm run build
 
 # Run tests
 npm test
+```
 
-# Start development
-npm run dev
+### Database Setup
+
+```bash
+# Create database
+createdb ai_framework_db
+
+# Run schema setup
+psql ai_framework_db -f src/infrastructure/database/schema.sql
+```
+
+### Basic Usage
+
+```typescript
+import { Pool } from 'pg';
+import { 
+  OpenAIAdapter, 
+  PostgreSQLChatRepository, 
+  PostgreSQLMessageRepository,
+  ChatApplication 
+} from '@ai-framework/core';
+
+// Initialize dependencies
+const dbPool = new Pool({
+  connectionString: process.env.DATABASE_URL
+});
+
+const openaiAdapter = new OpenAIAdapter(process.env.OPENAI_API_KEY, {
+  defaultModel: 'gpt-4o'
+});
+
+const chatRepository = new PostgreSQLChatRepository(dbPool);
+const messageRepository = new PostgreSQLMessageRepository(dbPool);
+
+// Create application service
+const chatApp = new ChatApplication(
+  chatRepository,
+  messageRepository,
+  openaiAdapter
+);
+
+// Create a chat and send a message
+async function example() {
+  const { chat } = await chatApp.createChat({
+    userId: 'user123',
+    title: 'My Chat',
+    model: 'gpt-4o'
+  });
+
+  const response = await chatApp.sendMessage({
+    chatId: chat.id,
+    userId: 'user123',
+    content: 'Hello, AI!'
+  });
+
+  console.log(response.assistantMessage.content);
+}
 ```
 
 ### Development Scripts

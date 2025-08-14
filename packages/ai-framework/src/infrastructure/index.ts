@@ -2,4 +2,5 @@
  * Infrastructure Layer - External Adapters
  */
 
-// Infrastructure adapters will be exported here
+export * from './ai';
+export * from './database';
