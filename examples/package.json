@@ -8,7 +8,8 @@
     "test-persistent": "npx tsx test-persistent-chat.ts",
     "test-both": "npx tsx test-both-modes.ts",
     "test-discovery": "npx tsx test-website-discovery.ts",
-    "test-custom": "npx tsx test-custom-discovery.ts"
+    "test-custom": "npx tsx test-custom-discovery.ts",
+    "test-manual-page": "npx tsx test-manual-page-addition.ts"
   },
   "dependencies": {
     "dotenv": "^16.0.0",

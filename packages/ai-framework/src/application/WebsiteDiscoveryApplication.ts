@@ -17,6 +17,7 @@ import { PageDiscoveryService, DiscoveryOptions } from '../domain/services/PageD
 import { Website, CreateWebsiteRequest } from '../domain/entities/Website';
 import { CrawlSession, CreateCrawlSessionRequest, CrawlSessionStatus } from '../domain/entities/CrawlSession';
 import { Page, CreatePageRequest, DiscoveryMethod } from '../domain/entities/Page';
+import { AddManualPage, AddManualPageRequest, AddManualPageResponse } from '../domain/use-cases/crawling/AddManualPage';
 
 export interface DiscoveryRequest {
   websiteUrl: string;
@@ -354,5 +355,19 @@ export class WebsiteDiscoveryApplication {
 
   async getDiscoveredPages(crawlSessionId: string): Promise<Page[]> {
     return await this.pageRepository.findByCrawlSessionId(crawlSessionId);
+  }
+
+  /**
+   * Add a specific page manually to a website
+   * This allows users to include specific high-value pages that might not be discoverable through crawling
+   */
+  async addManualPage(request: AddManualPageRequest): Promise<AddManualPageResponse> {
+    const addManualPageUseCase = new AddManualPage(
+      this.pageRepository,
+      this.websiteRepository,
+      this.crawlSessionRepository
+    );
+
+    return await addManualPageUseCase.execute(request);
   }
 }

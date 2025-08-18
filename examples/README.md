@@ -74,6 +74,40 @@ npm run test-custom -- --help
 npx tsx test-custom-discovery.ts --website https://fastapi.tiangolo.com --pages 15
 ```
 
+### `npm run test-manual-page`
+- ➕ **Manual page addition**
+- Add specific high-value pages to websites for content extraction
+- Perfect for pages not discoverable through crawling
+- Useful for password-protected content, specific documentation, etc.
+
+**Manual Page Parameters:**
+```bash
+# Add OpenAI API reference page
+npm run test-manual-page -- \
+  --website https://docs.openai.com \
+  --page https://docs.openai.com/api-reference/chat \
+  --title "OpenAI Chat API Reference"
+
+# Add with custom priority
+npm run test-manual-page -- \
+  -w https://example.com \
+  -p https://example.com/important-page \
+  --priority 95
+
+# Show help for all options
+npm run test-manual-page -- --help
+
+# Direct usage
+npx tsx test-manual-page-addition.ts --website https://github.com --page https://github.com/features/actions
+```
+
+**Use Cases for Manual Pages:**
+- 🔒 **Password-protected content** you have access to
+- 📚 **Specific documentation** not in sitemap  
+- 🎯 **High-value pages** you want to prioritize
+- 📄 **External resources** that should be part of knowledge base
+- 🚀 **Product pages** or key landing pages
+
 ## 🔧 Troubleshooting
 
 ### "OPENAI_API_KEY not found"
