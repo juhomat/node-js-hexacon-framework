@@ -56,7 +56,7 @@ const testFeatures: TestFeature[] = [
     description: 'Test website crawling, content chunking, and vector embeddings',
     icon: <Globe className="h-6 w-6" />,
     href: '/tests/scraping',
-    status: 'pending',
+    status: 'implemented',
     category: 'scraping'
   },
   {

@@ -10,9 +10,19 @@ import {
   PostgreSQLChatRepository, 
   PostgreSQLMessageRepository,
   PostgreSQLDatabaseAdminRepository,
+  PostgreSQLWebsiteRepository,
+  PostgreSQLPageRepository,
+  PostgreSQLCrawlSessionRepository,
+  PostgreSQLChunkRepository,
   ChatApplication,
   StatelessChatApplication,
-  DatabaseAdminApplication
+  DatabaseAdminApplication,
+  CrawlingPipelineApplication,
+  PageDiscoveryService,
+  HtmlFetcherService,
+  ContentExtractionService,
+  TextChunkingService,
+  EmbeddingService
 } from 'ai-framework'
 
 // Database pool singleton
@@ -22,6 +32,7 @@ let dbPool: Pool | null = null
 let chatApplication: ChatApplication | null = null
 let statelessChatApplication: StatelessChatApplication | null = null
 let databaseAdminApplication: DatabaseAdminApplication | null = null
+let crawlingPipelineApplication: CrawlingPipelineApplication | null = null
 
 /**
  * Initialize the database pool
@@ -104,6 +115,44 @@ export function getDatabaseAdminApplication(): DatabaseAdminApplication {
 }
 
 /**
+ * Initialize the CrawlingPipelineApplication
+ */
+export function getCrawlingPipelineApplication(): CrawlingPipelineApplication {
+  if (!crawlingPipelineApplication) {
+    // Initialize database
+    const pool = initializeDatabase()
+    
+    // Initialize repositories
+    const websiteRepository = new PostgreSQLWebsiteRepository(pool)
+    const pageRepository = new PostgreSQLPageRepository(pool)
+    const crawlSessionRepository = new PostgreSQLCrawlSessionRepository(pool)
+    const chunkRepository = new PostgreSQLChunkRepository(pool)
+    
+    // Initialize services
+    const pageDiscoveryService = new PageDiscoveryService()
+    const htmlFetcherService = new HtmlFetcherService()
+    const contentExtractionService = new ContentExtractionService()
+    const textChunkingService = new TextChunkingService()
+    const embeddingService = new EmbeddingService()
+    
+    // Create application service
+    crawlingPipelineApplication = new CrawlingPipelineApplication(
+      websiteRepository,
+      pageRepository,
+      crawlSessionRepository,
+      chunkRepository,
+      pageDiscoveryService,
+      htmlFetcherService,
+      contentExtractionService,
+      textChunkingService,
+      embeddingService
+    )
+  }
+  
+  return crawlingPipelineApplication
+}
+
+/**
  * Close database connections
  */
 export async function closeDatabaseConnections(): Promise<void> {
@@ -113,5 +162,6 @@ export async function closeDatabaseConnections(): Promise<void> {
     chatApplication = null
     statelessChatApplication = null
     databaseAdminApplication = null
+    crawlingPipelineApplication = null
   }
 }
