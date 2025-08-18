@@ -108,6 +108,38 @@ npx tsx test-manual-page-addition.ts --website https://github.com --page https:/
 - 📄 **External resources** that should be part of knowledge base
 - 🚀 **Product pages** or key landing pages
 
+### `npm run test-content-extraction`
+- 🔍 **Content extraction and analysis**
+- Extract main content from HTML pages (removes navigation, headers, footers)
+- Test extraction quality and analyze content structure
+- Works with discovered pages or standalone URLs
+
+**Content Extraction Parameters:**
+```bash
+# Extract content from a specific URL (standalone)
+npm run test-content-extraction -- --url https://docs.openai.com/api-reference
+
+# Extract content for pages in a crawl session (batch)
+npm run test-content-extraction -- --session <session-id> --limit 5 --update-db
+
+# Extract content for specific page ID
+npm run test-content-extraction -- --page-id <page-uuid> --update-db --verbose
+
+# Show detailed analysis
+npm run test-content-extraction -- --url https://example.com --verbose
+
+# Show help for all options
+npm run test-content-extraction -- --help
+```
+
+**Content Extraction Features:**
+- 🧠 **Smart content detection** using semantic HTML and patterns
+- 📊 **Quality scoring** (0-100) based on extraction method and content
+- 🔍 **Multiple extraction strategies** (semantic → pattern-based → aggressive)
+- 📝 **Rich metadata** extraction (title, author, language, headings)
+- 💾 **Database integration** updates pages with extracted content
+- ⚡ **Batch processing** with concurrency control
+
 ## 🔧 Troubleshooting
 
 ### "OPENAI_API_KEY not found"
