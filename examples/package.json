@@ -4,6 +4,7 @@
   "description": "Simple examples to test the AI Framework",
   "main": "index.js",
   "scripts": {
+    "demo": "npx tsx QUICK_START_DEMO.ts",
     "test-stateless": "npx tsx test-stateless-chat.ts",
     "test-persistent": "npx tsx test-persistent-chat.ts",
     "test-both": "npx tsx test-both-modes.ts",
@@ -13,7 +14,9 @@
     "test-content-extraction": "npx tsx test-content-extraction.ts",
     "test-chunking-embedding": "npx tsx test-chunking-embedding.ts",
     "test-api": "npx tsx test-api-endpoints.ts",
-    "test-full-pipeline": "npx tsx test-full-pipeline.ts"
+    "test-full-pipeline": "npx tsx test-full-pipeline.ts",
+    "test-single-page": "npx tsx test-single-page-direct.ts",
+    "test-single-page-simple": "npx tsx test-single-page-simple.ts"
   },
   "dependencies": {
     "dotenv": "^16.0.0",

@@ -1,6 +1,6 @@
 # 🧪 AI Framework Examples
 
-Simple standalone examples to test the AI Framework functionality.
+Complete test suite and examples for the AI Framework's crawling, content extraction, chunking, and embedding functionality.
 
 ## 🚀 Quick Setup
 
@@ -19,17 +19,28 @@ Simple standalone examples to test the AI Framework functionality.
 
 3. **Run tests:**
    ```bash
+   # 🚀 QUICK START: Complete demo of all functionality
+   npx tsx QUICK_START_DEMO.ts
+   
    # Test stateless mode (no database needed)
    npm run test-stateless
    
-   # Test persistent mode (database required)
-   npm run test-persistent
+   # Test full pipeline (database required)
+   npx tsx test-full-pipeline.ts
    
-   # Test both modes
-   npm run test-both
+   # Test API endpoints
+   npm run test-api -- --endpoint full-crawl --url https://example.com
    ```
 
 ## 📋 Available Tests
+
+### 🌟 **`npx tsx QUICK_START_DEMO.ts` - Complete Framework Demo**
+- ✅ **Start here!** Tests the complete crawling pipeline
+- 🔍 Full website crawling with discovery
+- 📄 Manual page addition
+- 🧮 Vector search across crawled content
+- 📊 Database statistics and recent activity
+- 🎯 Perfect introduction to framework capabilities
 
 ### `npm run test-stateless`
 - ✅ **No database required**

@@ -53,12 +53,15 @@ createdb ai_framework_db
 psql ai_framework_db -c "CREATE EXTENSION IF NOT EXISTS vector;"
 
 # Setup complete schema (base + crawling)
+cd packages/ai-framework
 npm run setup-db
 
 # Or setup individually:
 # psql ai_framework_db -f src/infrastructure/database/schema.sql
 # npm run setup-crawling-schema
 ```
+
+> 📖 **For complete setup instructions, see [Complete Crawling Guide](docs/CRAWLING_COMPLETE_GUIDE.md)**
 
 ### Basic Usage
 
@@ -111,44 +114,74 @@ async function example() {
 ### Crawling & RAG Usage
 
 ```typescript
+import { Pool } from 'pg';
 import { 
-  CrawlingApplication,
-  WebsiteRepository,
-  PostgreSQLWebsiteRepository 
+  CrawlingPipelineApplication,
+  PostgreSQLWebsiteRepository,
+  PostgreSQLPageRepository,
+  PostgreSQLCrawlSessionRepository,
+  PostgreSQLChunkRepository,
+  PageDiscoveryService,
+  HtmlFetcherService,
+  ContentExtractionService,
+  TextChunkingService,
+  EmbeddingService
 } from '@ai-framework/core';
 
-// Initialize crawling system
-const websiteRepository = new PostgreSQLWebsiteRepository(dbPool);
-const crawlingApp = new CrawlingApplication(
-  websiteRepository,
-  pageRepository,
-  chunkRepository,
-  scrapingService,
-  embeddingService
+// Initialize database and services
+const dbPool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+const crawlingPipeline = new CrawlingPipelineApplication(
+  new PostgreSQLWebsiteRepository(dbPool),
+  new PostgreSQLPageRepository(dbPool),
+  new PostgreSQLCrawlSessionRepository(dbPool),
+  new PostgreSQLChunkRepository(dbPool),
+  new PageDiscoveryService(),
+  new HtmlFetcherService(),
+  new ContentExtractionService(),
+  new TextChunkingService(),
+  new EmbeddingService()
 );
 
-// Real-time website crawling
+// Complete website crawling pipeline
 async function crawlWebsite() {
-  // Register website
-  const website = await crawlingApp.createWebsite({
-    domain: 'docs.openai.com',
-    baseUrl: 'https://docs.openai.com',
-    title: 'OpenAI Documentation'
+  const result = await crawlingPipeline.executeFullCrawl({
+    websiteUrl: 'https://docs.openai.com',
+    maxPages: 10,    // Crawl up to 10 pages
+    maxDepth: 2      // Go 2 levels deep
   });
 
-  // Start real-time crawling with streaming progress
-  for await (const progress of crawlingApp.crawlWebsite({
-    websiteId: website.id,
-    maxPages: 10,    // Crawl up to 10 pages
-    maxDepth: 1      // Go 1 level deep
-  })) {
-    console.log(`Crawling: ${progress.current}/${progress.total} pages`);
-  }
+  console.log(`✅ Processed ${result.summary.pagesProcessed} pages`);
+  console.log(`📄 Created ${result.summary.chunksCreated} chunks`);
+  console.log(`🧮 Generated ${result.summary.embeddingsGenerated} embeddings`);
+  console.log(`💰 Cost: $${result.summary.totalCost.toFixed(4)}`);
+}
 
-  // Use crawled content for RAG
-  const ragResults = await crawlingApp.searchSimilar({
-    query: "How do I use the OpenAI API?",
-    limit: 5
+// Add specific page manually
+async function addPage() {
+  const result = await crawlingPipeline.executeAddPage({
+    websiteUrl: 'https://docs.openai.com',
+    pageUrl: 'https://docs.openai.com/api-reference/chat',
+    priority: 95
+  });
+
+  console.log(`📄 Added page with ${result.summary.chunksCreated} chunks`);
+}
+
+// Search crawled content
+async function searchContent() {
+  const chunkRepository = new PostgreSQLChunkRepository(dbPool);
+  const embeddingService = new EmbeddingService();
+  
+  const { embedding } = await embeddingService.generateEmbedding(
+    "How do I use the OpenAI chat API?"
+  );
+  
+  const results = await chunkRepository.searchSimilar(embedding, 5);
+  
+  results.forEach(chunk => {
+    console.log(`📊 Similarity: ${chunk.similarity.toFixed(3)}`);
+    console.log(`📝 Content: ${chunk.content.substring(0, 100)}...`);
   });
 }
 ```
@@ -212,7 +245,8 @@ CRAWLING_DELAY_MS=1000     # Delay between requests
 
 ## 📚 Documentation
 
-- **[Crawling & RAG System](docs/crawling-system.md)** - Complete guide to website crawling and vector search
+- **[Complete Crawling Guide](docs/CRAWLING_COMPLETE_GUIDE.md)** - 📖 **Start Here!** Complete integration guide
+- **[Crawling & RAG System](docs/crawling-system.md)** - Technical architecture overview
 - **[Environment Setup](docs/environment-setup.md)** - Detailed setup instructions
 - **[Admin Interface Plan](docs/admin-interface-plan.md)** - Admin interface documentation
 
