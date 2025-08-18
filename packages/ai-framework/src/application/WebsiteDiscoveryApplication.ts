@@ -42,10 +42,13 @@ export interface DiscoveryProgress {
 }
 
 export interface DiscoveryResult {
+  success: boolean;
   website: Website;
-  crawlSession: CrawlSession;
-  discoveredPages: Page[];
+  session?: CrawlSession;
+  pages: Page[];
   summary: DiscoverySummary;
+  message: string;
+  error?: string;
 }
 
 export interface DiscoverySummary {
@@ -230,6 +233,89 @@ export class WebsiteDiscoveryApplication {
       };
 
       throw error;
+    }
+  }
+
+  /**
+   * Simple non-generator version for pipeline integration
+   * Executes the same logic as discoverWebsite but returns a simple Promise
+   */
+  async discoverWebsiteSimple(request: DiscoveryRequest): Promise<DiscoveryResult> {
+    const startTime = Date.now();
+    
+    try {
+      console.log(`🚀 Starting discovery for: ${request.websiteUrl}`);
+
+      // Step 1: Ensure website exists
+      const website = await this.ensureWebsite(request);
+
+      // Step 2: Create crawl session
+      console.log(`📊 Creating crawl session for ${website.domain}`);
+      const crawlSession = await this.createCrawlSession(website.id, request);
+
+      // Step 3: Update crawl session status to discovering
+      await this.crawlSessionRepository.updateStatus(
+        crawlSession.id, 
+        CrawlSessionStatus.DISCOVERING,
+        { startedAt: new Date() }
+      );
+
+      // Step 4: Discover pages
+      console.log(`🔍 Starting page discovery...`);
+      const discoveryOptions: DiscoveryOptions = {
+        maxPages: request.maxPages,
+        maxDepth: request.maxDepth,
+        userAgent: 'AI-Framework-Bot/1.0',
+        respectRobotsTxt: true,
+        timeout: 10000,
+        concurrency: 6,
+        ...request.options
+      };
+
+      const discoveryResult = await this.pageDiscoveryService.discoverPages(
+        request.websiteUrl,
+        discoveryOptions
+      );
+
+      // Step 5: Store pages in database
+      console.log(`💾 Storing ${discoveryResult.discoveredUrls.length} pages in database...`);
+      const storedPages = await this.storeDiscoveredPages(website.id, crawlSession.id, discoveryResult.discoveredUrls);
+
+      // Step 6: Update crawl session status
+      await this.crawlSessionRepository.updateStatus(
+        crawlSession.id, 
+        CrawlSessionStatus.COMPLETED,
+        { 
+          completedAt: new Date(),
+          pagesDiscovered: storedPages.length
+        }
+      );
+
+      const processingTimeMs = Date.now() - startTime;
+      const summary = this.createSummary(discoveryResult, storedPages, processingTimeMs);
+
+      console.log(`✅ Discovery completed: ${storedPages.length} pages ready for content extraction`);
+
+      return {
+        success: true,
+        website,
+        session: crawlSession,
+        pages: storedPages,
+        summary,
+        message: `Discovery completed: ${storedPages.length} pages ready for content extraction`
+      };
+
+    } catch (error: any) {
+      console.error(`❌ Website discovery failed:`, error.message);
+      return {
+        success: false,
+        website: {} as Website,
+        session: undefined,
+        pages: [],
+        summary: {} as DiscoverySummary,
+        message: `Discovery failed: ${error.message}`,
+        error: error.message
+      };
     }
   }
 

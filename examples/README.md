@@ -140,6 +140,53 @@ npm run test-content-extraction -- --help
 - 💾 **Database integration** updates pages with extracted content
 - ⚡ **Batch processing** with concurrency control
 
+### 🌐 **API Endpoints Tests**
+
+#### `npm run test-api`
+Tests the complete end-to-end pipeline API endpoints for production-ready crawling.
+
+**Usage:**
+```bash
+# Test full website crawling pipeline
+npm run test-api -- --endpoint full-crawl --url https://example.com --max-pages 5
+
+# Test manual page addition pipeline  
+npm run test-api -- --endpoint add-page --website https://docs.openai.com --page https://docs.openai.com/api-reference/chat
+
+# Test streaming crawling with real-time progress
+npm run test-api -- --endpoint stream --url https://example.com --max-pages 3
+
+# Get API endpoint documentation
+npm run test-api -- --endpoint info
+```
+
+**Parameters:**
+- `--endpoint`: API endpoint to test (`full-crawl`, `add-page`, `stream`, `info`)
+- `--url`: Website URL for full crawling
+- `--website`: Website URL for page addition
+- `--page`: Specific page URL to add
+- `--max-pages`: Maximum pages to crawl (default: 5)
+- `--max-depth`: Maximum crawling depth (default: 1)
+- `--priority`: Page priority 0-100 (default: 80, for add-page)
+
+**API Endpoints:**
+- **`/api/crawling/full-crawl`**: Complete website crawling → content extraction → chunking → embeddings
+- **`/api/crawling/add-page`**: Manual page addition → content extraction → chunking → embeddings  
+- **`/api/crawling/full-crawl-stream`**: Streaming version with real-time progress updates
+
+**Features:**
+- 🌐 **Complete Pipeline**: URL → discovery → extraction → chunking → embeddings → database
+- 📊 **Real-time Progress**: Server-Sent Events for live updates
+- 💾 **Database Storage**: PostgreSQL with vector embeddings
+- 🔢 **Smart Chunking**: 300-400 tokens with 15-20% overlap
+- 🧠 **OpenAI Embeddings**: 1536D vectors ready for RAG
+- 📈 **Quality Metrics**: Detailed analysis and cost estimation
+
+**Prerequisites:**
+- Admin application running: `cd admin_application && npm run dev`
+- Database with crawling schema
+- OPENAI_API_KEY configured
+
 ## 🔧 Troubleshooting
 
 ### "OPENAI_API_KEY not found"

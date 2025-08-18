@@ -11,12 +11,15 @@
     "test-custom": "npx tsx test-custom-discovery.ts",
     "test-manual-page": "npx tsx test-manual-page-addition.ts",
     "test-content-extraction": "npx tsx test-content-extraction.ts",
-    "test-chunking-embedding": "npx tsx test-chunking-embedding.ts"
+    "test-chunking-embedding": "npx tsx test-chunking-embedding.ts",
+    "test-api": "npx tsx test-api-endpoints.ts",
+    "test-full-pipeline": "npx tsx test-full-pipeline.ts"
   },
   "dependencies": {
     "dotenv": "^16.0.0",
-    "tsx": "^4.0.0",
-    "pg": "^8.11.0"
+    "node-fetch": "^3.3.0",
+    "pg": "^8.11.0",
+    "tsx": "^4.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
