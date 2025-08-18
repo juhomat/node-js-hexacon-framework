@@ -16,7 +16,9 @@
     "test-api": "npx tsx test-api-endpoints.ts",
     "test-full-pipeline": "npx tsx test-full-pipeline.ts",
     "test-single-page": "npx tsx test-single-page-direct.ts",
-    "test-single-page-simple": "npx tsx test-single-page-simple.ts"
+    "test-single-page-simple": "npx tsx test-single-page-simple.ts",
+    "test-rag-chat": "npx tsx test-rag-chat.ts",
+    "test-rag-api": "npx tsx test-rag-api.ts"
   },
   "dependencies": {
     "dotenv": "^16.0.0",

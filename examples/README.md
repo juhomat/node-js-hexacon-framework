@@ -198,6 +198,57 @@ npm run test-api -- --endpoint info
 - Database with crawling schema
 - OPENAI_API_KEY configured
 
+### 🤖 **RAG Chat Tests**
+
+#### `npm run test-rag-chat`
+Tests RAG (Retrieval-Augmented Generation) functionality directly using the framework.
+
+**Usage:**
+```bash
+# Test complete RAG functionality
+npm run test-rag-chat
+```
+
+**Features:**
+- 🔍 **RAG vs Standard Chat** - Compare responses with and without RAG enhancement
+- 📚 **Source Attribution** - See which content chunks were used in responses
+- 📊 **Performance Metrics** - Search time, similarity scores, API costs
+- 🎯 **Multi-Website Filtering** - Test website-specific content searches
+- 💬 **Conversation Memory** - RAG integrated with existing chat history
+- ✅ **Fallback Behavior** - Standard chat when no relevant content found
+
+**Sample Output:**
+```
+✅ RAG chat components initialized
+📊 Available content: 415 chunks from 3 websites
+
+📝 Standard Response: Hello! I can assist you with...
+📝 RAG-Enhanced Response: Based on the provided sources...
+
+📚 RAG Sources Used:
+   1. Example Domain (50.5%)
+      URL: https://example.com
+
+📊 RAG Metrics:
+   Search time: 564ms
+   Chunks found: 1
+   Average similarity: 50.5%
+```
+
+#### `npm run test-rag-api`
+Tests the RAG API endpoint for HTTP integration.
+
+**Usage:**
+```bash
+# Test RAG API (requires admin app running)
+npm run test-rag-api
+```
+
+**Prerequisites:**
+- Admin application running: `cd ../admin_application && npm run dev`
+- Database with crawled content
+- OPENAI_API_KEY configured
+
 ## 🔧 Troubleshooting
 
 ### "OPENAI_API_KEY not found"

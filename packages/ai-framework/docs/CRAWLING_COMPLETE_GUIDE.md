@@ -9,6 +9,7 @@ This guide provides everything you need to integrate the AI Framework's crawling
 - [Database Setup](#database-setup)
 - [API Endpoints](#api-endpoints)
 - [Framework Integration](#framework-integration)
+- [RAG Integration](#rag-retrieval-augmented-generation-integration)
 - [Example Scripts](#example-scripts)
 - [Configuration](#configuration)
 - [Troubleshooting](#troubleshooting)
@@ -34,6 +35,9 @@ graph LR
 - ✅ **Smart Text Chunking** - 300-400 token chunks with sentence boundary respect
 - ✅ **Vector Embeddings** - OpenAI `text-embedding-3-small` for semantic search
 - ✅ **PostgreSQL + pgvector** - High-performance vector storage and search
+- ✅ **RAG Chat Integration** - Retrieval-Augmented Generation with existing chat system
+- ✅ **Source Attribution** - Track and cite which content chunks were used
+- ✅ **Multi-Website Filtering** - Search specific websites or across all content
 - ✅ **Streaming Progress** - Real-time feedback during long crawling operations
 - ✅ **Cost Tracking** - Automatic API cost calculation and monitoring
 
@@ -307,6 +311,78 @@ async function addPage() {
 }
 ```
 
+### RAG (Retrieval-Augmented Generation) Integration
+
+```typescript
+import { 
+  RAGChatApplication,
+  ChatApplication,
+  RAGSearchService,
+  PostgreSQLChatRepository,
+  PostgreSQLMessageRepository,
+  OpenAIAdapter
+} from 'packages/ai-framework';
+
+// Initialize chat repositories and AI service
+const chatRepository = new PostgreSQLChatRepository(pool);
+const messageRepository = new PostgreSQLMessageRepository(pool);
+const openaiAdapter = new OpenAIAdapter(process.env.OPENAI_API_KEY!);
+
+// Initialize applications
+const chatApplication = new ChatApplication(chatRepository, messageRepository, openaiAdapter);
+const ragSearchService = new RAGSearchService(embeddingService, chunkRepository);
+const ragChatApplication = new RAGChatApplication(chatApplication, ragSearchService);
+
+// Create RAG-enhanced chat
+async function createRAGChat() {
+  // Create a new chat session
+  const chatResponse = await ragChatApplication.createChat({
+    userId: 'user-123',
+    title: 'RAG Chat Session',
+    model: 'gpt-4o',
+    systemPrompt: 'You are a helpful assistant that uses provided sources to answer questions accurately. Always cite your sources.'
+  });
+  
+  return chatResponse.chat.id;
+}
+
+// Send RAG-enhanced messages
+async function sendRAGMessage(chatId: string, message: string) {
+  const response = await ragChatApplication.sendMessage({
+    chatId,
+    userId: 'user-123',
+    content: message,
+    useRAG: true,
+    maxChunks: 5,
+    minSimilarity: 0.7,
+    websiteIds: ['specific-website-id'] // Optional: filter to specific websites
+  });
+
+  console.log(`User: ${message}`);
+  console.log(`Assistant: ${response.assistantMessage.content}`);
+  
+  // Show sources used
+  if (response.ragSources && response.ragSources.length > 0) {
+    console.log('\nSources used:');
+    response.ragSources.forEach((source, index) => {
+      console.log(`${index + 1}. ${source.pageTitle} (${(source.similarity * 100).toFixed(1)}%)`);
+      console.log(`   ${source.pageUrl}`);
+    });
+  }
+  
+  return response;
+}
+
+// Example usage
+async function ragExample() {
+  const chatId = await createRAGChat();
+  
+  await sendRAGMessage(chatId, 'How do I use the OpenAI API?');
+  await sendRAGMessage(chatId, 'What are the rate limits?');
+  await sendRAGMessage(chatId, 'Can you explain the pricing?');
+}
+```
+
 ### Vector Search Integration
 
 ```typescript
@@ -332,6 +408,26 @@ async function searchContent(query: string) {
     console.log(`Content: ${chunk.content}`);
     console.log(`Source: ${chunk.pageUrl}`);
   });
+}
+
+// RAG search with enhanced context
+async function ragSearch(query: string, websiteIds?: string[]) {
+  const ragSearchService = new RAGSearchService(embeddingService, chunkRepository);
+  
+  const result = await ragSearchService.searchRelevantContent(query, {
+    maxChunks: 5,
+    minSimilarity: 0.7,
+    websiteIds
+  });
+  
+  console.log(`Found ${result.chunks.length} relevant chunks`);
+  console.log(`Search took ${result.searchMetrics.searchTime}ms`);
+  
+  // Build context for AI prompt
+  const context = ragSearchService.buildContextFromChunks(result.chunks);
+  console.log('Context built:', context);
+  
+  return result;
 }
 ```
 
@@ -377,6 +473,26 @@ npx tsx test-api-endpoints.ts --endpoint full-crawl --url https://example.com --
 # Test single page API
 npx tsx test-single-page-api.ts
 ```
+
+### RAG (Retrieval-Augmented Generation) Testing
+
+```bash
+# Test RAG chat functionality (framework direct)
+npm run test-rag-chat
+
+# Test RAG API endpoint (requires admin app running)
+npm run test-rag-api
+
+# Complete demo including RAG
+npm run demo
+```
+
+**RAG Test Features:**
+- ✅ **RAG vs Standard Chat** - Compare responses with and without RAG
+- ✅ **Source Attribution** - See which content chunks were used
+- ✅ **Performance Metrics** - Search time, similarity scores, costs
+- ✅ **Multi-Website Filtering** - Test website-specific searches
+- ✅ **Conversation Memory** - RAG integrated with chat history
 
 ### Custom Discovery Testing
 

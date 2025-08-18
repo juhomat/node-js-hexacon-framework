@@ -117,15 +117,21 @@ async function example() {
 import { Pool } from 'pg';
 import { 
   CrawlingPipelineApplication,
+  RAGChatApplication,
+  ChatApplication,
+  RAGSearchService,
   PostgreSQLWebsiteRepository,
   PostgreSQLPageRepository,
   PostgreSQLCrawlSessionRepository,
   PostgreSQLChunkRepository,
+  PostgreSQLChatRepository,
+  PostgreSQLMessageRepository,
   PageDiscoveryService,
   HtmlFetcherService,
   ContentExtractionService,
   TextChunkingService,
-  EmbeddingService
+  EmbeddingService,
+  OpenAIAdapter
 } from '@ai-framework/core';
 
 // Initialize database and services
@@ -168,21 +174,45 @@ async function addPage() {
   console.log(`📄 Added page with ${result.summary.chunksCreated} chunks`);
 }
 
-// Search crawled content
-async function searchContent() {
+// RAG-enhanced chat with crawled content
+async function ragChat() {
+  // Initialize chat components
+  const chatRepository = new PostgreSQLChatRepository(dbPool);
+  const messageRepository = new PostgreSQLMessageRepository(dbPool);
   const chunkRepository = new PostgreSQLChunkRepository(dbPool);
+  const openaiAdapter = new OpenAIAdapter(process.env.OPENAI_API_KEY!);
   const embeddingService = new EmbeddingService();
   
-  const { embedding } = await embeddingService.generateEmbedding(
-    "How do I use the OpenAI chat API?"
-  );
+  // Initialize RAG chat application
+  const chatApplication = new ChatApplication(chatRepository, messageRepository, openaiAdapter);
+  const ragSearchService = new RAGSearchService(embeddingService, chunkRepository);
+  const ragChat = new RAGChatApplication(chatApplication, ragSearchService);
   
-  const results = await chunkRepository.searchSimilar(embedding, 5);
-  
-  results.forEach(chunk => {
-    console.log(`📊 Similarity: ${chunk.similarity.toFixed(3)}`);
-    console.log(`📝 Content: ${chunk.content.substring(0, 100)}...`);
+  // Create chat and send RAG-enhanced message
+  const chatResponse = await ragChat.createChat({
+    userId: 'user-123',
+    title: 'RAG Chat Session',
+    model: 'gpt-4o'
   });
+  
+  const response = await ragChat.sendMessage({
+    chatId: chatResponse.chat.id,
+    userId: 'user-123',
+    content: 'How do I use the OpenAI chat API?',
+    useRAG: true,
+    maxChunks: 5,
+    minSimilarity: 0.7
+  });
+  
+  console.log(`🤖 Response: ${response.assistantMessage.content}`);
+  
+  // Show sources used
+  if (response.ragSources && response.ragSources.length > 0) {
+    console.log('\n📚 Sources:');
+    response.ragSources.forEach((source, index) => {
+      console.log(`  ${index + 1}. ${source.pageTitle} (${(source.similarity * 100).toFixed(1)}%)`);
+    });
+  }
 }
 ```
 

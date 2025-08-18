@@ -4,6 +4,7 @@
 
 export * from './AIService';
 export * from './StatelessAIService';
+export * from './RAGSearchService';
 export * from './PageDiscoveryService';
 export * from './HtmlFetcherService';
 export * from './ContentExtractionService';
