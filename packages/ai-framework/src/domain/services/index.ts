@@ -1,6 +1,7 @@
 /**
- * Domain Service Interfaces
+ * Domain Services
  */
 
 export * from './AIService';
 export * from './StatelessAIService';
+export * from './PageDiscoveryService';

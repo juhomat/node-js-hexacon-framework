@@ -19,7 +19,11 @@
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier --write src/**/*.ts",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "setup-crawling-schema": "ts-node scripts/setup-crawling-schema.ts",
+    "migrate-crawling-schema": "ts-node scripts/migrate-crawling-schema.ts",
+    "fix-crawl-sessions-schema": "ts-node scripts/fix-crawl-sessions-schema.ts",
+    "setup-db": "psql $DATABASE_URL -f src/infrastructure/database/schema.sql && npm run setup-crawling-schema"
   },
   "keywords": [
     "ai",

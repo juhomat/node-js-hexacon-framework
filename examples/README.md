@@ -48,6 +48,32 @@ Simple standalone examples to test the AI Framework functionality.
 - Shows the differences between stateful/stateless
 - Great for understanding when to use each
 
+### `npm run test-discovery`
+- 🔍 **Website discovery and prioritization**
+- Tests intelligent page discovery (sitemap + crawling)
+- Stores discovered pages in database for content extraction
+- Runs 3 built-in test scenarios (GitHub, OpenAI, MDN)
+
+### `npm run test-custom`
+- 🎯 **Custom website testing**
+- Test discovery with your own website and parameters
+- Command line arguments work properly with this script
+
+**Custom Parameters:**
+```bash
+# Test your specific website (required --website parameter)
+npm run test-custom -- --website https://docs.openai.com --pages 20 --depth 2
+
+# Quick test with short options
+npm run test-custom -- -w https://example.com -p 5 -d 1
+
+# Show help for all options
+npm run test-custom -- --help
+
+# Direct usage (no npm wrapper issues)
+npx tsx test-custom-discovery.ts --website https://fastapi.tiangolo.com --pages 15
+```
+
 ## 🔧 Troubleshooting
 
 ### "OPENAI_API_KEY not found"

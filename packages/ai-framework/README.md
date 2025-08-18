@@ -6,7 +6,7 @@ A modular, reusable Node.js framework using hexagonal architecture (ports and ad
 
 - 🤖 **AI Chat & Image Generation** - OpenAI integration for chat and DALL-E image generation
 - 🧠 **RAG (Retrieval-Augmented Generation)** - Full pipeline for document processing and intelligent retrieval
-- 🕷️ **Web Scraping & Embedding** - Automated content extraction, chunking, and vector embedding
+- 🕷️ **Web Scraping & Embedding** - Real-time website crawling with vector embeddings for RAG
 - 🔐 **Authentication** - Firebase Auth with email and Google login support
 - 💳 **Payments** - Stripe integration for one-time and recurring billing
 - 📊 **History Logging** - PostgreSQL with pgvector for comprehensive activity tracking
@@ -49,8 +49,15 @@ npm test
 # Create database
 createdb ai_framework_db
 
-# Run schema setup
-psql ai_framework_db -f src/infrastructure/database/schema.sql
+# Install required extensions
+psql ai_framework_db -c "CREATE EXTENSION IF NOT EXISTS vector;"
+
+# Setup complete schema (base + crawling)
+npm run setup-db
+
+# Or setup individually:
+# psql ai_framework_db -f src/infrastructure/database/schema.sql
+# npm run setup-crawling-schema
 ```
 
 ### Basic Usage
@@ -98,6 +105,51 @@ async function example() {
   });
 
   console.log(response.assistantMessage.content);
+}
+```
+
+### Crawling & RAG Usage
+
+```typescript
+import { 
+  CrawlingApplication,
+  WebsiteRepository,
+  PostgreSQLWebsiteRepository 
+} from '@ai-framework/core';
+
+// Initialize crawling system
+const websiteRepository = new PostgreSQLWebsiteRepository(dbPool);
+const crawlingApp = new CrawlingApplication(
+  websiteRepository,
+  pageRepository,
+  chunkRepository,
+  scrapingService,
+  embeddingService
+);
+
+// Real-time website crawling
+async function crawlWebsite() {
+  // Register website
+  const website = await crawlingApp.createWebsite({
+    domain: 'docs.openai.com',
+    baseUrl: 'https://docs.openai.com',
+    title: 'OpenAI Documentation'
+  });
+
+  // Start real-time crawling with streaming progress
+  for await (const progress of crawlingApp.crawlWebsite({
+    websiteId: website.id,
+    maxPages: 10,    // Crawl up to 10 pages
+    maxDepth: 1      // Go 1 level deep
+  })) {
+    console.log(`Crawling: ${progress.current}/${progress.total} pages`);
+  }
+
+  // Use crawled content for RAG
+  const ragResults = await crawlingApp.searchSimilar({
+    query: "How do I use the OpenAI API?",
+    limit: 5
+  });
 }
 ```
 
@@ -151,7 +203,18 @@ STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
 
 # Database
 DATABASE_URL=postgresql://user:password@localhost:5432/dbname
+
+# Crawling (Optional)
+CRAWLING_MAX_PAGES=10      # Default pages per crawl session
+CRAWLING_MAX_DEPTH=1       # Default crawling depth
+CRAWLING_DELAY_MS=1000     # Delay between requests
 ```
+
+## 📚 Documentation
+
+- **[Crawling & RAG System](docs/crawling-system.md)** - Complete guide to website crawling and vector search
+- **[Environment Setup](docs/environment-setup.md)** - Detailed setup instructions
+- **[Admin Interface Plan](docs/admin-interface-plan.md)** - Admin interface documentation
 
 ## Tech Stack
 
