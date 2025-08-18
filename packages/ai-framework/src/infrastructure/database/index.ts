@@ -8,3 +8,4 @@ export * from './PostgreSQLDatabaseAdminRepository';
 export * from './PostgreSQLWebsiteRepository';
 export * from './PostgreSQLPageRepository';
 export * from './PostgreSQLCrawlSessionRepository';
+export * from './PostgreSQLChunkRepository';

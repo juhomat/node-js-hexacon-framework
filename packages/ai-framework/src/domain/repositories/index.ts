@@ -8,3 +8,4 @@ export * from './DatabaseAdminRepository';
 export * from './WebsiteRepository';
 export * from './PageRepository';
 export * from './CrawlSessionRepository';
+export * from './ChunkRepository';
