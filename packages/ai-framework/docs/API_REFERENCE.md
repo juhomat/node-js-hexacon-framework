@@ -559,4 +559,237 @@ curl -N http://localhost:3000/api/crawling/full-crawl-stream \
 
 ---
 
+## 📋 Website Management
+
+### `GET /api/crawling/websites`
+
+List all websites available for RAG search filtering.
+
+#### Request
+
+```http
+GET /api/crawling/websites
+```
+
+#### Response
+
+```json
+{
+  "success": true,
+  "websites": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "domain": "docs.openai.com",
+      "title": "OpenAI Documentation",
+      "description": "OpenAI API documentation and guides",
+      "totalPages": 45,
+      "totalChunks": 156,
+      "lastCrawledAt": "2024-01-15T10:30:00Z",
+      "status": "active"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440001",
+      "domain": "platform.openai.com",
+      "title": "OpenAI Platform",
+      "description": "OpenAI Platform guides",
+      "totalPages": 23,
+      "totalChunks": 89,
+      "lastCrawledAt": "2024-01-14T15:45:00Z",
+      "status": "active"
+    }
+  ],
+  "total": 2
+}
+```
+
+---
+
+## 🤖 RAG Chat Endpoints
+
+### `POST /api/chat/rag-chat`
+
+Enhanced chat with Retrieval-Augmented Generation that searches crawled content for relevant context before responding.
+
+**Features:**
+- Vector similarity search across website content
+- Multi-website filtering capability
+- Configurable similarity thresholds and chunk limits
+- Source attribution with similarity scores
+- Seamless integration with existing chat system
+
+#### Request
+
+```http
+POST /api/chat/rag-chat
+Content-Type: application/json
+
+{
+  "message": "How do I use the OpenAI chat API?",
+  "chatId": "chat-uuid-123",
+  "userId": "user-456",
+  "websiteIds": ["website-uuid-1", "website-uuid-2"],
+  "useRAG": true,
+  "maxChunks": 5,
+  "minSimilarity": 0.7,
+  "configuration": {
+    "model": "gpt-4o",
+    "temperature": 0.7
+  }
+}
+```
+
+#### Request Parameters
+
+| Parameter | Type | Required | Default | Range | Description |
+|-----------|------|----------|---------|-------|-------------|
+| `message` | string | ✅ | - | - | User message/question |
+| `chatId` | string | ❌ | auto-create | - | Existing chat ID (creates new if omitted) |
+| `userId` | string | ❌ | 'anonymous' | - | User identifier |
+| `websiteIds` | string[] | ❌ | all | - | Filter search to specific websites |
+| `useRAG` | boolean | ❌ | true | - | Enable/disable RAG functionality |
+| `maxChunks` | number | ❌ | 5 | 1-20 | Maximum chunks to retrieve |
+| `minSimilarity` | number | ❌ | 0.7 | 0.0-1.0 | Minimum similarity threshold |
+| `configuration` | object | ❌ | {} | - | Chat configuration (model, temperature, etc.) |
+
+#### Response
+
+```json
+{
+  "success": true,
+  "response": "Based on the OpenAI documentation, here's how to use the Chat API:\n\n[Response with sources and context]",
+  "chatId": "chat_1755576735744_wdzrn57bq",
+  "messageId": "msg_1755576756431_abc123",
+  "ragContext": {
+    "chunksFound": 3,
+    "sources": [
+      {
+        "index": 1,
+        "chunkId": "chunk-uuid-1",
+        "pageTitle": "Chat API Reference",
+        "pageUrl": "https://docs.openai.com/api-reference/chat",
+        "websiteDomain": "docs.openai.com",
+        "similarity": 0.89,
+        "contentPreview": "The Chat API allows you to build conversational applications..."
+      }
+    ],
+    "avgSimilarity": 0.82,
+    "websitesUsed": ["docs.openai.com"]
+  },
+  "metrics": {
+    "processingTimeMs": 3500,
+    "totalTokens": 1245,
+    "cost": 0.0156,
+    "ragSearchTimeMs": 850,
+    "chatResponseTimeMs": 2650
+  }
+}
+```
+
+#### RAG Context Object
+
+```typescript
+interface RAGContext {
+  chunksFound: number;
+  sources: SourceMetadata[];
+  avgSimilarity: number;
+  websitesUsed: string[];
+}
+
+interface SourceMetadata {
+  index: number;
+  chunkId: string;
+  pageTitle: string;
+  pageUrl: string;
+  websiteDomain: string;
+  similarity: number;
+  contentPreview: string;
+}
+```
+
+#### Chat Metrics
+
+```typescript
+interface ChatMetrics {
+  processingTimeMs: number;  // Total request processing time
+  totalTokens: number;       // Tokens used in response
+  cost: number;             // API cost in USD
+  ragSearchTimeMs: number;   // Time spent on RAG search
+  chatResponseTimeMs: number; // Time spent on AI response
+}
+```
+
+### RAG vs Standard Chat
+
+| Feature | Standard Chat | RAG Chat |
+|---------|---------------|----------|
+| **Context** | Conversation history only | Conversation + relevant website content |
+| **Sources** | None | Cited sources with similarity scores |
+| **Accuracy** | General knowledge | Specific to crawled content |
+| **Cost** | Lower (fewer tokens) | Higher (context tokens + response) |
+| **Speed** | Faster (~1-2s) | Slower (~3-5s) |
+
+### `POST /api/chat/create`
+
+Create a new chat session (standard endpoint, works with RAG).
+
+### `POST /api/chat/send`
+
+Send a message to existing chat (standard endpoint, no RAG).
+
+### `GET /api/chat/history`
+
+Get chat conversation history.
+
+### `GET /api/chat/list`
+
+List user's chat sessions.
+
+---
+
+## 🧪 RAG Testing with cURL
+
+### Basic RAG Chat
+
+```bash
+curl -X POST http://localhost:3000/api/chat/rag-chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "How do I implement authentication in my app?",
+    "userId": "test-user",
+    "useRAG": true,
+    "maxChunks": 5,
+    "minSimilarity": 0.6
+  }'
+```
+
+### Website-Specific RAG
+
+```bash
+curl -X POST http://localhost:3000/api/chat/rag-chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "What are the OpenAI API rate limits?",
+    "userId": "test-user",
+    "useRAG": true,
+    "websiteIds": ["openai-docs-website-id"],
+    "maxChunks": 3,
+    "minSimilarity": 0.8
+  }'
+```
+
+### Continue Existing RAG Conversation
+
+```bash
+curl -X POST http://localhost:3000/api/chat/rag-chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "Can you explain that in more detail?",
+    "chatId": "existing-chat-id",
+    "userId": "test-user",
+    "useRAG": true
+  }'
+```
+
+---
+
 For more examples and integration guides, see the [Complete Crawling Guide](CRAWLING_COMPLETE_GUIDE.md).

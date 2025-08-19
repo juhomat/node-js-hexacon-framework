@@ -677,12 +677,84 @@ const multiSiteResults = await chunkRepository.searchSimilar(
 
 ---
 
+## 🖥️ Admin Interface Integration
+
+The framework includes a complete admin interface that demonstrates all crawling and RAG functionality through a web UI.
+
+### Available Admin Features
+
+#### Web Scraping & Embedding Interface
+- **Location**: `/tests/scraping`
+- **Features**:
+  - Website URL input with validation
+  - Configurable max pages and crawling depth
+  - Real-time progress tracking
+  - Results display with metrics
+  - Integrated with `CrawlingPipelineApplication`
+
+#### RAG Chat System Interface  
+- **Location**: `/tests/rag-chat`
+- **Features**:
+  - Website selection from database
+  - Configurable similarity thresholds and chunk limits
+  - Real-time chat with context-aware responses
+  - Source attribution with similarity scores
+  - Conversation history and continuity
+
+### Setting Up Admin Interface
+
+```bash
+# Navigate to admin application
+cd admin_application
+
+# Install dependencies (if not already installed)
+npm install
+
+# Set environment variables
+export DATABASE_URL="postgresql://localhost:5432/ai_framework_db"
+export OPENAI_API_KEY="your-api-key"
+
+# Start development server
+npm run dev
+
+# Visit admin interface
+open http://localhost:3000
+```
+
+### Admin Interface Architecture
+
+The admin interface demonstrates best practices for framework integration:
+
+- **Service Layer** (`admin_application/src/lib/framework.ts`): Clean abstraction over framework
+- **API Routes** (`admin_application/src/app/api/`): RESTful endpoints using framework services
+- **React Components**: Modern UI components for testing and demonstration
+- **Environment Isolation**: Framework runs as separate package dependency
+
+### Framework Integration Pattern
+
+```typescript
+// admin_application/src/lib/framework.ts
+import { CrawlingPipelineApplication, RAGChatApplication } from 'ai-framework';
+
+// Service layer functions that initialize framework components
+export function getCrawlingPipelineApplication() { /* ... */ }
+export function getRAGChatApplication() { /* ... */ }
+export function getAvailableWebsites() { /* ... */ }
+```
+
+This pattern ensures:
+- ✅ **Clean separation** between framework and application code
+- ✅ **Easy updates** when framework is updated via Git subtree
+- ✅ **Consistent configuration** across all framework usage
+- ✅ **Type safety** with full TypeScript support
+
 ## 📚 Next Steps
 
 1. **Set up your database** using the provided scripts
 2. **Run example scripts** to verify functionality  
 3. **Integrate API endpoints** into your application
-4. **Customize configuration** for your specific needs
-5. **Monitor performance** and optimize as needed
+4. **Try the admin interface** to see all features in action
+5. **Customize configuration** for your specific needs
+6. **Monitor performance** and optimize as needed
 
 For additional help, check the framework's main documentation or create an issue in the repository.

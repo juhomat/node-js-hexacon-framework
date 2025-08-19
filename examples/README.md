@@ -17,8 +17,12 @@ Complete test suite and examples for the AI Framework's crawling, content extrac
    # Edit .env and add your OPENAI_API_KEY
    ```
 
-3. **Run tests:**
+3. **Run examples:**
    ```bash
+   # 🚀 NEW: Production-ready complete demo (recommended for developers)
+   npx tsx PRODUCTION_READY_EXAMPLE.ts
+   
+   # Original quick start demo
    # 🚀 QUICK START: Complete demo of all functionality
    npx tsx QUICK_START_DEMO.ts
    
