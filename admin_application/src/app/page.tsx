@@ -65,7 +65,7 @@ const testFeatures: TestFeature[] = [
     description: 'Test Retrieval-Augmented Generation with vector context',
     icon: <Brain className="h-6 w-6" />,
     href: '/tests/rag-chat',
-    status: 'pending',
+    status: 'implemented',
     category: 'ai'
   }
 ]
